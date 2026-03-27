@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR AX: Agent Native 조직으로의 전환 | SK Square</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            word-break: keep-all;
+            background-color: #fff;
+            color: #111;
+            overflow: hidden;
+        }
+
+        /* Slide & Scroll Snap Styles */
+        .slide-container {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            padding-top: 4rem;
+            scroll-behavior: smooth;
+            cursor: default;
+        }
+
+        .slide {
+            height: calc(100vh - 4rem);
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Top Navigation Styles */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4rem;
+            background: #fff;
+            z-index: 50;
+            border-bottom: 2px solid #111;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.25rem;
+            height: 100%;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            border-bottom: 3px solid transparent;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .nav-link:hover {
+            color: #111;
+        }
+
+        .nav-link.active {
+            color: #E1190E;
+            font-weight: 800;
+            border-bottom-color: #E1190E;
+        }
+
+        /* Anti-AI Design: Sharp Edges */
+        * {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        ::selection {
+            background: #E1190E;
+            color: #fff;
+        }
+
+        /* Roadmap Styles */
+        .roadmap-card {
+            border-left: 2px solid #111;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .roadmap-card::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            background: #111;
+        }
+
+        /* Orchestrator Diagram Styling */
+        .arch-container {
+            border: 2px solid #111;
+            padding: 1.5rem;
+            background: #fff;
+            position: relative;
+            width: 100%;
+        }
+
+        .node {
+            border: 1px solid #111;
+            padding: 1rem;
+            background: #fff;
+            position: relative;
+            z-index: 10;
+        }
+
+        .node.highlight {
+            border: 2px solid #E1190E;
+        }
+
+        .node-label {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #999;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .node-title {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+
+        .node-desc {
+            font-size: 10px;
+            color: #666;
+            margin-top: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .connector-v {
+            width: 2px;
+            background: #111;
+            height: 1.5rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .connector-v::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid #111;
+        }
+
+        /* 화살표 없는 단순 수직 연결선 */
+        .connector-bar {
+            width: 2px;
+            background: #111;
+            height: 1.5rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 1. 3열에서 4열 구조로 강제 재편 (간격 및 상단 여백 조정) */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            position: relative;
+            padding-top: 2rem;
+        }
+
+        /* 2. 가로선 길이를 4열 중심에 맞게 재계산 (기존 16% -> 12.5%로 확장) */
+        .agent-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: calc(12.5% - 0.375rem);
+            right: calc(12.5% - 0.375rem);
+            height: 2px;
+            background: #111;
+        }
+
+        /* 3. 늘어난 상단 여백에 맞춰 세로선(데이터 하달) 길이 연장 */
+        .agent-grid .node::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 2rem;
+            background: #111;
+        }
+
+        /* 4. 화살표 위치 고정 */
+        .agent-grid .node::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid #111;
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        /* Custom scrollbar */
+        .slide-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .slide-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .slide-container::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <nav class="top-nav">
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-black tracking-tighter leading-none">SK Square</h2>
+            <div class="w-px h-4 bg-gray-300"></div>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-red-600 font-bold">HR AX Plan</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#intro" class="nav-link active">Intro</a></li>
+            <li><a href="#context" class="nav-link">01. 배경</a></li>
+            <li><a href="#vision" class="nav-link">02. 목표</a></li>
+            <li><a href="#framework" class="nav-link">03. 동력</a></li>
+            <li><a href="#approach" class="nav-link">04. 전략</a></li>
+            <li><a href="#tasks" class="nav-link">05. 과제</a></li>
+            <li><a href="#roadmap" class="nav-link">06. 로드맵</a></li>
+            <li><a href="#enablers" class="nav-link">07. 선결조건</a></li>
+            <li><a href="#outro" class="nav-link">Outro</a></li>
+        </ul>
+    </nav>
+
+    <main id="slide-container" class="slide-container">
+
+        <section id="intro" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b-4 border-black">
+            <p class="text-red-600 font-extrabold mb-4 tracking-widest text-sm uppercase italic reveal">Intro</p>
+            <h1 class="text-7xl lg:text-[100px] font-black tracking-tighter leading-[0.85] mb-10 reveal delay-1">
+                AGENT<br>NATIVE ORG.
+            </h1>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start reveal delay-2">
+                <div class="lg:col-span-7">
+                    <p class="text-2xl lg:text-3xl font-bold leading-tight mb-6">
+                        AI가 바꾸는 것은 도구만이 아니라<br>조직의 구조 그 자체입니다.
+                    </p>
+                    <p class="text-base text-gray-500 leading-relaxed font-light">
+                        파워포인트와 엑셀이 '도구'로서 일의 '속도'를 높였다면,<br>AI 에이전트는 '작업의 주체'로서 일의 '방식'을 근본적으로 재정의합니다.<br>
+                        이제 '에이전트를 만들고 다루는 것'이 기본 역량이 되는 시대가 다가오고 있습니다.
+                    </p>
+                </div>
+                <div class="col-span-12 lg:col-span-5 border-l-2 border-black pl-8 pt-2 reveal delay-3">
+                    <div class="text-6xl font-black mb-2 italic tracking-tighter">83</div>
+                    <p class="text-sm font-bold text-gray-600 uppercase tracking-widest mb-4">SK Square · Total
+                        Headcount</p>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        83명의 정예 인력은 가장 빠르게 실험하고 전환할 수 있는 Agile 조직을 의미하며, 그 작은 규모가 Agent Native로의 전환에 오히려 유리한
+                        장점이 되어줄 것입니다.
+                    </p>
+                    <div class="mt-6 grid grid-cols-2 gap-0 border-t border-gray-200 pt-6">
+                        <div>
+                            <div class="text-3xl font-black italic tracking-tighter">3Y</div>
+                            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">전환 목표 기간</p>
+                        </div>
+                        <div class="border-l border-gray-200 pl-6">
+                            <div class="text-3xl font-black italic tracking-tighter">4</div>
+                            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">핵심 실행 과제</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="context" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b border-gray-100">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">01. Context</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-10">패러다임의 전환: 도구에서 주체로</h3>
+            <div class="grid grid-cols-2 gap-8 border-t border-black pt-8 reveal">
+                <div class="bg-gray-50 border border-gray-200 p-8 flex flex-col justify-center">
+                    <h4 class="text-2xl font-bold mb-4 text-black">The Tool Era (PPT/Excel)</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">사람이 일의 주체이며, 도구는 사람의 보조 수단으로 활용되었습니다. 숙련도 차이가 개인의
+                        생산성 격차를 만들었으나, 일의 구조는 변하지 않았습니다.</p>
+                </div>
+
+                <div class="bg-black text-white p-8 flex flex-col justify-center">
+                    <h4 class="text-2xl font-bold mb-4 text-red-500">The Agent Era (AI)</h4>
+                    <p class="text-gray-300 text-sm leading-relaxed font-light">업무 자체를 에이전트에 위임합니다. 이제 사람은 Workflow를
+                        설계하는 'Orchestrator'가 되며, 다수의 에이전트 운용을 통해 개인이 조직 수준에 버금가는 성과를 창출하게 됩니다.</p>
+                </div>
+            </div>
+            <p class="text-xl font-medium leading-relaxed mt-10 reveal delay-1 border-l-4 border-red-600 pl-6">
+                "지금까지 파워포인트와 엑셀 활용 역량이 기본이었던 것처럼,<br>조만간 에이전트를 직접 설계하고 시스템과 연동하여 활용하는 능력이 구성원의 기본값이 될 것입니다."
+            </p>
+        </section>
+
+        <section id="vision" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b border-gray-100 bg-gray-50">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">02. Vision</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-8">우리가 가야 할 곳</h3>
+
+            <div class="grid grid-cols-12 gap-12 items-center">
+                <div class="col-span-5 reveal">
+                    <h4 class="text-2xl lg:text-3xl font-black mb-4 tracking-tighter italic">Orchestrator Organization
+                    </h4>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">모든 구성원이 다수의 에이전트를 조율하며, 무엇을(What)・왜(Why) 해야
+                        하는지에 집중합니다. 증원 보다는 에이전트 확장을 통해, 구성원 능력을 증강(Augment)시켜 성과를 극대화합니다.</p>
+                    <ul class="space-y-3 border-t border-black pt-4">
+                        <li class="flex justify-between items-end border-b border-gray-200 pb-2">
+                            <span class="text-sm font-bold">실행 주체</span>
+                            <span class="text-xs font-mono text-red-600 italic">AI Agents (업무 자동화 및 초안 작성)</span>
+                        </li>
+                        <li class="flex justify-between items-end border-b border-gray-200 pb-2">
+                            <span class="text-sm font-bold">구성원 역할</span>
+                            <span class="text-xs font-mono text-red-600 italic">가치 판단, 룰 설계 및 최종 의사결정</span>
+                        </li>
+                        <li class="flex justify-between items-end pb-2">
+                            <span class="text-sm font-bold">확장 방식</span>
+                            <span class="text-xs font-mono text-red-600 italic">에이전트 복제 및 병렬 처리</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-span-7 arch-container reveal delay-1">
+                    <div class="flex flex-col items-center">
+                        <div class="node w-full md:w-64 highlight text-center">
+                            <span class="node-label">Layer 01. Strategy & Intent</span>
+                            <h4 class="node-title">HUMAN ORCHESTRATOR</h4>
+                        </div>
+                        <div class="connector-v"></div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="node w-full md:w-80 bg-gray-50 border-dashed text-center">
+                            <span class="node-label text-red-600">Layer 02. Coordination Logic</span>
+                            <h4 class="node-title text-sm">(ex) HR MULTI-AGENT SYSTEM</h4>
+                        </div>
+                        <div class="connector-bar"></div>
+                    </div>
+                    <div class="agent-grid">
+                        <div class="node">
+                            <span class="node-label">Agent 01</span>
+                            <h4 class="node-title text-base font-bold">Profiling</h4>
+                        </div>
+                        <div class="node">
+                            <span class="node-label">Agent 02</span>
+                            <h4 class="node-title text-base font-bold">Career</h4>
+                        </div>
+                        <div class="node border-2 border-red-600">
+                            <span class="node-label text-red-600 font-black">Agent 03</span>
+                            <h4 class="node-title text-base font-bold text-red-600">Succession</h4>
+                        </div>
+                        <div class="node border-dashed border-gray-400 bg-transparent opacity-80">
+                            <span class="node-label text-gray-500">Agent N …</span>
+                            <h4 class="node-title text-base font-bold text-gray-600">Domain Expansion</h4>
+                            <p class="node-desc text-gray-500 mt-2">채용, 평가, 보상 등 HR 전 영역으로의 증식</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="framework" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b border-gray-100">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">03. Framework</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-10">이를 위해 갖춰야 할 것</h3>
+
+            <div class="grid grid-cols-3 gap-1 border-t border-black bg-black">
+                <div class="bg-white p-8 lg:p-10 reveal">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-10 italic">#01
+                        Infra</h4>
+                    <h5 class="text-xl lg:text-2xl font-bold mb-4">도구와 역량</h5>
+                    <p class="text-sm text-gray-500 leading-relaxed font-light mb-6">에이전트를 만들고 운용할 수 있는 환경과 역량. 그리고
+                        Copilot, Azure OpenAI, Power Automate 혹은 그에 준하는 Tool 및 에이전트 개발/운용 교육</p>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-gray-300 border border-gray-200 px-3 py-1 inline-block">정보보호/IT,
+                        HRD 추진</span>
+                </div>
+                <div class="bg-white p-8 lg:p-10 reveal delay-1">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-red-600 mb-10 italic">#02
+                        Data</h4>
+                    <h5 class="text-xl lg:text-2xl font-bold mb-4">데이터 기반 이해</h5>
+                    <p class="text-sm text-gray-500 leading-relaxed font-light mb-6">누가 어떤 역량을 갖고 있고 무엇이 부족한지, 다음 리더는
+                        누구인지를 감각이 아닌 데이터로 파악. 구성원의 역량과 성장을 정교한 데이터를 활용하여 분석</p>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-red-600 border border-red-600 px-3 py-1 inline-block">본
+                        보고서의 주안점</span>
+                </div>
+                <div class="bg-white p-8 lg:p-10 reveal delay-2">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-red-600 mb-10 italic">#03 Culture
+                    </h4>
+                    <h5 class="text-xl lg:text-2xl font-bold mb-4">AI 일상화 문화</h5>
+                    <p class="text-sm text-gray-500 leading-relaxed font-light mb-6">도구가 있고 역량도 있어도, 쓰는 것이 당연한 문화가 없으면
+                        변화는 일어나지 않음. 에이전트 활용이 특별한 일이 아닌 '기본'이 되는 환경.</p>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-red-600 border border-red-600 px-3 py-1 inline-block">본
+                        보고서의 주안점</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="approach" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b border-gray-100">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">04. Approach</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-10">2-Layer 추진 전략</h3>
+
+            <div class="grid grid-cols-2 gap-0 border-2 border-black reveal">
+                <div class="p-12 border-r-2 border-black flex flex-col justify-center">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">Layer 1: HR
+                        Self-Build</h4>
+                    <p class="text-3xl font-black mb-6 leading-tight italic text-red-600">"HR이 직접 만들고<br>먼저 경험한다"</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Profiling, Career, Succession Agent를 순차적으로 구축하여 HR
+                        스스로가 첫 번째 Pilot이 됩니다.</p>
+                </div>
+                <div class="p-12 bg-black text-white flex flex-col justify-center">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6">Layer 2: Lead
+                        Evolution</h4>
+                    <p class="text-3xl font-black mb-6 leading-tight italic">"성공 경험을 전사로<br>확산하고 주도한다"</p>
+                    <p class="text-sm text-gray-400 leading-relaxed">HR의 Pilot 모델을 기반으로 타 조직의 도메인 Agent 전환을 리드하여 SK스퀘어
+                        전체의 Agent Native를 완성합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tasks" class="slide px-12 md:px-24 lg:px-32 xl:px-48 border-b border-gray-100">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">05. Key Tasks</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-10">핵심 과제 상세</h3>
+
+            <div class="grid grid-cols-3 gap-8">
+                <div class="border-t-4 border-black pt-6 reveal">
+                    <span class="text-[10px] font-mono font-bold italic text-gray-400 block mb-2">Task 01</span>
+                    <h4 class="text-2xl font-black mb-4">구성원<br>Profiling</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed mb-4">모든 에이전트의 기반이 되는 데이터 파이프라인. 산재된 역량, 이력 데이터를
+                        통합하여 '단일 구성원 뷰' 확보.</p>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <p class="text-[10px] font-bold text-black mb-2 uppercase">[Key Action]</p>
+                        <ul class="text-[11px] font-medium space-y-1">
+                            <li>- 통합 프로파일 DB 구축</li>
+                            <li>- AI 분석 기반 데이터 축적</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border-t-4 border-black pt-6 reveal delay-1">
+                    <span class="text-[10px] font-mono font-bold italic text-gray-400 block mb-2">Task 02</span>
+                    <h4 class="text-2xl font-black mb-4 leading-tight">Career &<br>Succession Agent</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed mb-4">성장과 육성, 그리고 리더십 승계를 데이터 기반으로 자동화하고 최적화.</p>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="border border-gray-200 p-3">
+                            <h5 class="text-xs font-bold mb-1">Career Agent</h5>
+                            <p class="text-[10px] text-gray-500">조직 최적 육성 코스 제시</p>
+                        </div>
+                        <div class="border border-red-200 bg-red-50 p-3">
+                            <h5 class="text-xs font-bold text-red-600 italic mb-1">Succession Agent</h5>
+                            <p class="text-[10px] text-red-700 italic">리더십 후보군 식별 및 시뮬레이션</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t-4 border-black pt-6 reveal delay-2">
+                    <span class="text-[10px] font-mono font-bold italic text-gray-400 block mb-2">Task 03</span>
+                    <h4 class="text-2xl font-black mb-4 leading-tight">HR Multi-Agent<br>System (Pilot)</h4>
+                    <p class="text-[13px] font-bold mb-4 italic leading-relaxed">
+                        Profiling + Career + Succession<br>
+                        = <span class="text-red-600">Integrated HR Agent</span>
+                    </p>
+                    <p class="text-xs text-gray-500 leading-relaxed">개별 Agent들이 유기적으로 데이터를 주고받는 상위 Orchestrator 체계 구축.
+                        2028년 상반기까지 HR 스스로 Agent Native 조직의 완성형 모델 확보.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="slide bg-[#111] text-white px-12 md:px-24 lg:px-32 xl:px-48">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">06. Roadmap</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter mb-12 leading-none italic">THE 3-YEAR
+                TRANSFORMATION</h3>
+
+            <div class="grid grid-cols-3 gap-8">
+                <div class="roadmap-card border-gray-700 reveal">
+                    <h4 class="text-3xl lg:text-4xl font-black mb-4 italic text-red-600">2026</h4>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">Phase 1: Foundation
+                    </p>
+                    <ul class="text-xs space-y-2 font-light text-gray-300 leading-relaxed">
+                        <li>- 데이터 파이프라인 및 DB 고도화</li>
+                        <li>- 조직 지식 체계화 착수</li>
+                        <li>- AI 사례 공유 및 문화 형성 개시</li>
+                    </ul>
+                </div>
+                <div class="roadmap-card border-gray-700 reveal delay-1">
+                    <h4 class="text-3xl lg:text-4xl font-black mb-4 italic text-white">2027</h4>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">Phase 2: Build Agent
+                    </p>
+                    <ul class="text-xs space-y-2 font-light text-gray-300 leading-relaxed">
+                        <li>- Career Agent 구축 및 Pilot 검증</li>
+                        <li>- Succession Agent 구축 착수</li>
+                        <li>- 구성원 50% AI 업무 내재화 달성</li>
+                    </ul>
+                </div>
+                <div class="roadmap-card border-gray-700 reveal delay-2">
+                    <h4 class="text-3xl lg:text-4xl font-black mb-4 italic text-white">2028</h4>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">Phase 3: Scale Up</p>
+                    <ul class="text-xs space-y-2 font-light text-gray-300 leading-relaxed">
+                        <li>- HR Multi-Agent 통합 완성</li>
+                        <li>- HR Pilot 경험 기반 타 조직 확산</li>
+                        <li>- SK스퀘어 전체 Agent Native 완성</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="enablers" class="slide px-12 md:px-24 lg:px-32 xl:px-48 bg-white border-t border-gray-100">
+            <h2 class="text-xs font-black tracking-[0.3em] uppercase text-red-600 mb-2">07. Enablers</h2>
+            <h3 class="text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-10">선결 과제</h3>
+
+            <div class="w-full max-w-4xl reveal">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-black text-xs uppercase tracking-widest font-bold">
+                            <th class="py-4 px-4 w-1/3">Key Agenda</th>
+                            <th class="py-4 px-4">Strategic Requirement</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                            <td class="py-6 px-4 font-bold">데이터 협조</td>
+                            <td class="py-6 px-4 text-gray-600">이전 관계사 구성원 이력 데이터 확보 (프로파일 DB 완성 전제)</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-red-50">
+                            <td class="py-6 px-4 font-bold italic text-red-600">사내망 보안 정책</td>
+                            <td class="py-6 px-4 text-red-600 italic">AI 도구 운용 환경의 전사적 정비 (공통 선결 조건)</td>
+                        </tr>
+                        <tr class="border-b-2 border-black hover:bg-gray-50 transition-colors">
+                            <td class="py-6 px-4 font-bold">데이터 윤리</td>
+                            <td class="py-6 px-4 text-gray-600">민감 데이터 활용의 윤리적 기준 수립 (구성원 신뢰 확보)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="outro"
+            class="slide px-12 md:px-24 lg:px-32 xl:px-48 bg-white border-t-8 border-black text-center flex flex-col items-center justify-center">
+            <div class="reveal">
+                <h2 class="text-5xl lg:text-7xl font-black tracking-tighter mb-8 leading-tight">
+                    3년을 목표로<br>시작하겠습니다.
+                </h2>
+                <p class="text-sm text-gray-500 italic mb-12 tracking-widest">HR이 먼저 만들고, 먼저 경험하며, 길을 열어가겠습니다.</p>
+                <div class="w-20 h-1 bg-red-600 mx-auto"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const container = document.getElementById('slide-container');
+        const sections = document.querySelectorAll('.slide');
+        const navLinks = document.querySelectorAll('.nav-link');
+        let currentIndex = 0;
+
+        // 특정 슬라이드로 부드럽게 이동하는 함수
+        function goToSlide(index) {
+            if (index < 0 || index >= sections.length) return;
+            const targetSection = sections[index];
+            container.scrollTo({
+                top: targetSection.offsetTop - container.offsetTop,
+                behavior: 'smooth'
+            });
+        }
+
+        // 1. 키보드 방향키 이벤트 리스너 (좌/우, 상/하)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                goToSlide(currentIndex + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                goToSlide(currentIndex - 1);
+            }
+        });
+
+        // 2. 마우스 클릭 이벤트 리스너 (화면 좌/우 클릭)
+        container.addEventListener('click', (e) => {
+            // 네비게이션 링크 등 클릭 가능한 요소(a, button)를 클릭한 경우 무시
+            if (e.target.closest('a') || e.target.closest('button')) return;
+
+            const clickX = e.clientX;
+            const screenWidth = window.innerWidth;
+
+            if (clickX > screenWidth / 2) {
+                // 화면 우측 클릭 -> 다음 슬라이드
+                goToSlide(currentIndex + 1);
+            } else {
+                // 화면 좌측 클릭 -> 이전 슬라이드
+                goToSlide(currentIndex - 1);
+            }
+        });
+
+        // 스크롤 시 현재 슬라이드 인덱스 동기화 및 네비게이션 상태 업데이트
+        container.addEventListener('scroll', () => {
+            let currentId = "";
+            let newIndex = currentIndex;
+
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop - container.offsetTop;
+                if (container.scrollTop >= sectionTop - (window.innerHeight / 2)) {
+                    currentId = section.getAttribute('id');
+                    newIndex = index;
+                }
+            });
+
+            currentIndex = newIndex;
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(currentId)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Intersection Observer (등장 애니메이션 용도)
+        const observerOptions = {
+            root: container,
+            rootMargin: '0px',
+            threshold: 0.2
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>
