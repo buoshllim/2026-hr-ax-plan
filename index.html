@@ -42,13 +42,16 @@
         }
 
         .slide {
-            height: calc(100dvh - 4rem);
+            min-height: calc(100dvh - 4rem);
             width: 100%;
             scroll-snap-align: start;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding-top: clamp(1.5rem, 4vh, 3rem);
+            padding-bottom: clamp(1.5rem, 4vh, 3rem);
             position: relative;
+            box-sizing: border-box;
         }
 
         /* Top Navigation Styles */
