@@ -35,25 +35,23 @@
 
         /* Slide & Scroll Snap Styles */
         .slide-container {
-            height: 100vh;
+            height: 100dvh;
             width: 100vw;
             overflow-y: auto;
             scroll-snap-type: y mandatory;
+            scroll-padding-top: 4rem;
             padding-top: 4rem;
             scroll-behavior: smooth;
             cursor: default;
         }
 
         .slide {
-            min-height: calc(100dvh - 4rem);
+            height: calc(100dvh - 4rem);
             width: 100%;
             scroll-snap-align: start;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            padding-top: clamp(2rem, 6vh, 4rem);
-            padding-bottom: clamp(2rem, 6vh, 4rem);
-            box-sizing: border-box;
+            justify-content: center;
             position: relative;
         }
 
